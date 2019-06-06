@@ -4,9 +4,8 @@ let ctx = canvas.getContext("2d")
 let x = canvas.width/2;
 let y = canvas.height-30;
 let dx = 0;
-let dy = -4;
-let bulletRadius = 3;
-let bulletStatus = false
+let dy = -6;
+let bulletRadius = 4;
 
 let heroWidth = 50;
 let heroHeight = 10;
@@ -58,6 +57,10 @@ function collisionDetection(){
             if(bulletX >b.x && bulletX < b.x+alienWidth && bulletY > b.y && bulletY < b.y+alienHeight){
                 b.status = 0;
                 score++
+                bulletX = heroX+heroWidth/2
+                bulletY = heroY
+                
+
                 }
             }
         }
@@ -67,12 +70,12 @@ function collisionDetection(){
 function drawScore(){
     ctx.font = '16px Courier';
     ctx.fillStyle = 'white';
-    ctx.fillText("Score: "+score, 8, 20)
+    ctx.fillText("Score: "+score, 50, 20)
 }
 function drawLives() {
     ctx.font = '16px Courier';
     ctx.fillStyle = 'white';
-    ctx.fillText("Lives: "+lives, canvas.width-85,20);
+    ctx.fillText("Lives: "+lives, canvas.width-45,20);
 }
 
 let drawHero = () => {
@@ -213,32 +216,30 @@ await animationWait(1000)
 // alert("Game Over")
 } 
 
-// let fireBullet = () => {
-//     ctx.beginPath();
-//     ctx.arc(bulletX,bulletY,bulletRadius,0,Math.PI*2);
-//     ctx.fillStyle = 'red'
-//     ctx.fill();
-//     ctx.closePath();
-// }
-
 document.onkeydown = async function(e){
+    
     if(e.key === 'x'){
-        for(i=0;i<300;i++){
+        for(i=0;i<100;i++){
+            
        bulletX += dx
        bulletY += dy
        await animationWait(5)
         }
+        bulletX = heroX+heroWidth/2
+        bulletY = heroY
+        alternate = false
     }
 }
 
 
 
-// let move = async()=>{
-//     ctx.clearRect(0,0,canvas.width,canvas.height);
-//     await animationWait(1000)
-//     moveAliens()
-//     requestAnimationFrame(move)
-// }
+
+let move = async()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    await animationWait(1000)
+    moveAliens()
+    requestAnimationFrame(move)
+}
 
 let bullet = () => {
     ctx.beginPath();
@@ -249,6 +250,7 @@ let bullet = () => {
     
 
 }
+
 
 
 
@@ -271,11 +273,33 @@ let draw = async()=>{
         heroX -= 7;
         bulletX-=7;
     }
-    // x += dx;
-    // y += dy;
+    if(score===40){
+        await animationWait(1000)
+        alert('winner')
+        document.location.reload();
+        requestAnimationFrame(draw);
+    }
 requestAnimationFrame(draw);
 }
+function menu() {
+    // erase();
+    ctx.fillStyle = 'white';
+    ctx.font = '36px Courier';
+    ctx.textAlign = 'center';
+    ctx.fillText('Space Invaders', canvas.width / 2, canvas.height / 4+10);
+    ctx.font = '24px Courier';
+    ctx.fillText('Click to Start', canvas.width / 2, canvas.height / 2-30);
+    ctx.font = '18px Courier';
+    ctx.fillText('X to shoot', canvas.width / 2, (canvas.height / 4-30) * 3);
+    // Start the game on a click
+    canvas.addEventListener('click', startGame);
+  }
+ 
+  // Start the game
+ function startGame() {
+  draw();
+  move()
+  canvas.removeEventListener('click', startGame);
+ }
 
-
-draw()
-move()
+menu();
