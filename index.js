@@ -5,12 +5,12 @@ let x = canvas.width/2;
 let y = canvas.height-30;
 let dx = 0;
 let dy = -6;
-let bulletRadius = 4;
+let bulletRadius = 3;
 
-let heroWidth = 50;
-let heroHeight = 10;
+let heroWidth = 80;
+let heroHeight = 100;
 let heroX = (canvas.width-heroWidth)/2;
-let heroY = canvas.height-30;
+let heroY = canvas.height-90;
 let rightPressed = false;
 let leftPressed = false;
 let bulletX = x
@@ -37,6 +37,11 @@ for(let c=0; c<alienColumnCount; c++){
         aliens[c][r] = { x:0, y:0, status:1}
     }
 }
+
+let pewPew = new Audio('./pewpew.mp3');
+let title = new Audio('./titlebackground.mp3')
+let gameBack = new Audio('./uranus.mp3')
+let soundCount = 1
 
 function animationWait(time){
     return new Promise(resolve => {
@@ -77,10 +82,12 @@ function drawLives() {
     ctx.fillStyle = 'white';
     ctx.fillText("Lives: "+lives, canvas.width-45,20);
 }
+let heroImage = new Image();
+heroImage.src = '/shipgif.gif'
 
 let drawHero = () => {
     ctx.beginPath();
-    ctx.rect(heroX, heroY, heroWidth, heroHeight)
+    ctx.drawImage(heroImage,heroX, heroY, heroWidth, heroHeight)
     ctx.fillStyle = 'white'
     ctx.fill();
     ctx.closePath();
@@ -103,6 +110,8 @@ function keyUpHandler(e) {
         leftPressed = false;
     }
 }
+let alienImage = new Image();
+alienImage.src = '/alien1.png'
 function drawAliens() {
     for ( let c=0;c<alienColumnCount;c++){
         for(let r=0;r<alienRowCount;r++){
@@ -112,7 +121,7 @@ function drawAliens() {
             aliens[c][r].x = alienX;
             aliens[c][r].y = alienY;
             ctx.beginPath();
-            ctx.rect(alienX,alienY,alienWidth,alienHeight);
+            ctx.drawImage(alienImage,alienX,alienY,alienWidth,alienHeight);
             ctx.fillStyle = 'white'
             ctx.fill();
             ctx.closePath;
@@ -213,12 +222,17 @@ if(counterY < 9){
 }
 await animationWait(1000)
 
-// alert("Game Over")
+alert("Game Over")
+document.location.reload();
+requestAnimationFrame(draw);
 } 
 
 document.onkeydown = async function(e){
     
     if(e.key === 'x'){
+        if(soundCount%2!==0){
+        pewPew.play();
+        }
         for(i=0;i<100;i++){
             
        bulletX += dx
@@ -228,6 +242,16 @@ document.onkeydown = async function(e){
         bulletX = heroX+heroWidth/2
         bulletY = heroY
         alternate = false
+    } 
+    if(e.key === 'm'){
+    soundCount++
+    if(soundCount%2===0){
+    gameBack.pause()
+    title.pause()
+    } else if(soundCount%2!==0){
+        gameBack.play()
+        title.play()
+    }
     }
 }
 
@@ -243,8 +267,8 @@ let move = async()=>{
 
 let bullet = () => {
     ctx.beginPath();
-    ctx.arc(bulletX,bulletY,bulletRadius,0,Math.PI*2);
-    ctx.fillStyle = 'limegreen'
+    ctx.rect(bulletX,bulletY+10,bulletRadius,10,5);
+    ctx.fillStyle = 'red'
     ctx.fill();
     ctx.closePath();
     
@@ -282,7 +306,7 @@ let draw = async()=>{
 requestAnimationFrame(draw);
 }
 function menu() {
-    // erase();
+    title.play()
     ctx.fillStyle = 'white';
     ctx.font = '36px Courier';
     ctx.textAlign = 'center';
@@ -291,15 +315,17 @@ function menu() {
     ctx.fillText('Click to Start', canvas.width / 2, canvas.height / 2-30);
     ctx.font = '18px Courier';
     ctx.fillText('X to shoot', canvas.width / 2, (canvas.height / 4-30) * 3);
-    // Start the game on a click
+    ctx.font = '18px Courier';
+    ctx.fillText('M to Mute', canvas.width / 2, (canvas.height / 4-45) * 3);
     canvas.addEventListener('click', startGame);
   }
  
-  // Start the game
- function startGame() {
-  draw();
-  move()
-  canvas.removeEventListener('click', startGame);
- }
+  function startGame() {
+    title.pause()
+   gameBack.play()
+ draw();
+ move()
+ canvas.removeEventListener('click', startGame);
+}
 
 menu();
